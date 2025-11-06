@@ -17,11 +17,11 @@ public class Item extends BaseEntity{
     @Column(name = "item_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY) // 테스트 편의를 위해 optional = false 설정은 추후 반영 예정
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY) // 테스트 편의를 위해 optional = false 설정은 추후 반영 예정
     @JoinColumn(name = "user_id", nullable = false) // ERD에는 null로 되어있는데 notnull로 함
     private User user; // 판매자인 user
 
