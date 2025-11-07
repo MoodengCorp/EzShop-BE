@@ -1,4 +1,4 @@
-package com.moodeng.ezshop.dto.user;
+package com.moodeng.ezshop.dto.request;
 
 import com.moodeng.ezshop.constant.Role;
 import com.moodeng.ezshop.entity.User;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignupDto {
+public class SignupRequestDto {
     private String email;
     private String password;
     private String name;
@@ -16,7 +16,7 @@ public class SignupDto {
     private Role role;
 
     //Helper Method
-    public User toEntity() {
-        return User.builder().email(email).password(password).name(name).address(address).role(role).build();
+    public User toEntity(String encodedPassword) {
+        return User.builder().email(email).password(encodedPassword).name(name).address(address).role(role).build();
     }
 }
