@@ -28,4 +28,15 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public LoginResponseDto login(LoginRequestDto loginDto) {
+        User user = userRepository.findByEmail(loginDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+
+        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+
+        return LoginResponseDto.fromEntity(user);
+    }
 }
