@@ -26,4 +26,10 @@ public class UserController {
 
         return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.OK);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
+        LoginResponseDto loginUser = userService.login(loginDto);
+        return new ResponseEntity<>(loginUser, HttpStatus.OK);
+    }
 }
