@@ -2,14 +2,14 @@ package com.moodeng.ezshop.auth;
 
 
 import com.moodeng.ezshop.entity.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
@@ -20,13 +20,15 @@ public class JwtTokenProvider {
     private String accessSecret;
     @Value("${jwt.refresh.secret}")
     private String refreshSecret;
+    @Getter
     @Value("${jwt.access.expiration-ms}")
     private Long accessExpirationTime;
+    @Getter
     @Value("${jwt.refresh.expiration-ms}")
     private Long refreshExpirationTime;
 
-    private Key accessKey;
-    private Key refreshKey;
+    private SecretKey accessKey;
+    private SecretKey refreshKey;
 
     @PostConstruct
     protected void init() {
@@ -39,7 +41,7 @@ public class JwtTokenProvider {
 
     public String generateAccessToken(User user) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() +  accessExpirationTime);
+        Date expiryDate = new Date(now.getTime() + accessExpirationTime);
 
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -52,7 +54,7 @@ public class JwtTokenProvider {
 
     public String generateRefreshToken(User user) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() +  refreshExpirationTime);
+        Date expiryDate = new Date(now.getTime() + refreshExpirationTime);
 
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -60,5 +62,43 @@ public class JwtTokenProvider {
                 .expiration(expiryDate)
                 .signWith(refreshKey)
                 .compact();
+    }
+
+    private Claims getClaimsFromToken(String token, SecretKey key) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
+    public String getEmailFromAccessToken(String token) {
+        return getClaimsFromToken(token, accessKey).getSubject();
+    }
+
+    public String getEmailFromRefreshToken(String token) {
+        return getClaimsFromToken(token, refreshKey).getSubject();
+    }
+
+    public boolean validateAccessToken(String token) {
+        try {
+            Jwts.parser().verifyWith(accessKey).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parser().verifyWith(refreshKey).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
