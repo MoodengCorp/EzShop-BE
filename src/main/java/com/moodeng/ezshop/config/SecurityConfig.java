@@ -32,10 +32,11 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/user/signup", "/user/login").permitAll()
+                        .requestMatchers("/item/**").permitAll() // 아이템 api 임시 허용
                         .anyRequest().authenticated()
-                )
+                );
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
