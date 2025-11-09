@@ -17,6 +17,6 @@ public class SignupRequestDto {
 
     //Helper Method
     public User toEntity(String encodedPassword) {
-        return User.builder().email(email).password(encodedPassword).name(name).address(address).role(role).build();
+        return User.builder().email(email).password(encodedPassword).name(name).phone(phone).address(address).role(role).build();
     }
 }
