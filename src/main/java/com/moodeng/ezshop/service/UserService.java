@@ -1,20 +1,27 @@
 package com.moodeng.ezshop.service;
 
+import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.entity.User;
 import com.moodeng.ezshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public void signup(SignupRequestDto signupDto) {
@@ -29,7 +36,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public LoginResponseDto login(LoginRequestDto loginDto) {
+    @Transactional
+    public LoginDetails login(LoginRequestDto loginDto) {
         User user = userRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
@@ -37,6 +45,18 @@ public class UserService {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        return LoginResponseDto.fromEntity(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+        redisTemplate.opsForValue().set(
+                user.getEmail(),
+                refreshToken,
+                jwtTokenProvider.getRefreshExpirationTime(),
+                TimeUnit.MILLISECONDS
+        );
+
+        LoginResponseDto loginResponse =LoginResponseDto.of(user, accessToken);
+
+        return new LoginDetails(loginResponse, refreshToken);
     }
 }

@@ -13,8 +13,10 @@ import lombok.Getter;
 public class LoginResponseDto {
     private String name;
     private Role role;
+    private String accessToken;
+    private String tokenType = "Bearer";
 
-    public static LoginResponseDto fromEntity(User user) {
-        return LoginResponseDto.builder().name(user.getName()).role(user.getRole()).build();
+    public static LoginResponseDto of(User user, String accessToken) {
+        return LoginResponseDto.builder().name(user.getName()).role(user.getRole()).accessToken(accessToken).tokenType("Bearer").build();
     }
 }
