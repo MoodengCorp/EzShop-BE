@@ -64,7 +64,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private Claims getClaimsFromToken(String token, SecretKey key) {
+    private Claims getClaimsFromToken(String token, SecretKey key, boolean allowExpired) {
         try {
             return Jwts.parser()
                     .verifyWith(key)
@@ -72,16 +72,40 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            return e.getClaims();
+            if (allowExpired) {
+                return e.getClaims();
+            }
+            throw e;
         }
     }
 
     public String getEmailFromAccessToken(String token) {
-        return getClaimsFromToken(token, accessKey).getSubject();
+        return getClaimsFromToken(token, accessKey, true).getSubject();
     }
 
     public String getEmailFromRefreshToken(String token) {
-        return getClaimsFromToken(token, refreshKey).getSubject();
+        return getClaimsFromToken(token, refreshKey, true).getSubject();
+    }
+
+    public Long getRemainingExpirationTimeFromAccessToken(String token) {
+        return calculateRemainingTime(token, accessKey);
+    }
+
+    public Long getRemainingExpirationTimeFromRefreshToken(String token) {
+        return calculateRemainingTime(token, refreshKey);
+    }
+
+    private Long calculateRemainingTime(String token, SecretKey key) {
+        try {
+            Date expiration = getClaimsFromToken(token, key, true).getExpiration();
+            Date now = new Date();
+
+            long remainingTime = expiration.getTime() - now.getTime();
+
+            return (remainingTime > 0) ? remainingTime : 0;
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     public boolean validateAccessToken(String token) {

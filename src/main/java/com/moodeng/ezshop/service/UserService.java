@@ -25,7 +25,6 @@ public class UserService {
 
     @Transactional
     public void signup(SignupRequestDto signupDto) {
-        // Email Duplicate check
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -48,14 +47,7 @@ public class UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        redisTemplate.opsForValue().set(
-                user.getEmail(),
-                refreshToken,
-                jwtTokenProvider.getRefreshExpirationTime(),
-                TimeUnit.MILLISECONDS
-        );
-
-        LoginResponseDto loginResponse =LoginResponseDto.of(user, accessToken);
+        LoginResponseDto loginResponse = LoginResponseDto.of(user, accessToken);
 
         return new LoginDetails(loginResponse, refreshToken);
     }

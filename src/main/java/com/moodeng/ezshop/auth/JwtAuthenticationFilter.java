@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
         String TOKEN_PREFIX = "Bearer ";
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
-            return bearerToken.substring(TOKEN_PREFIX.length()); // "Bearer " (7글자) 이후의 토큰 값 반환
+            return bearerToken.substring(TOKEN_PREFIX.length());
         }
         return null;
     }
