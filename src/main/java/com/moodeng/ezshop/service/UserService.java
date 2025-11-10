@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,5 +51,34 @@ public class UserService {
         LoginResponseDto loginResponse = LoginResponseDto.of(user, accessToken);
 
         return new LoginDetails(loginResponse, refreshToken);
+    }
+
+    @Transactional
+    public void logout(String accessToken, String refreshToken) {
+        if(StringUtils.hasText(accessToken)) {
+            Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromAccessToken(accessToken);
+
+            if (remainingTime > 0) {
+                redisTemplate.opsForValue().set(
+                        accessToken,
+                        "logout",
+                        remainingTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        }
+
+        if(StringUtils.hasText(accessToken)) {
+            Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromRefreshToken(refreshToken);
+
+            if (remainingTime > 0) {
+                redisTemplate.opsForValue().set(
+                        refreshToken,
+                        "logout",
+                        remainingTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        }
     }
 }
