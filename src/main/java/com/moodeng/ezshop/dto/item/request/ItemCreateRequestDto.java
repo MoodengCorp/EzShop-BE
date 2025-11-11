@@ -30,8 +30,11 @@ public class ItemCreateRequestDto {
     @NotNull(message = "재고수량 필수 기입.")
     @Min(value = 0, message = "0 이상의 수량 기입")
     private Integer stockQuantity;
-    private MultipartFile thumbnailFile;
-    private MultipartFile detailImageFile;
+
+//    @ModelAttribute가 아니라 @RequestPart로 파일을 받기에 DTO에서는 파일이 필요 없어짐
+//    private MultipartFile thumbnailFile;
+//    private MultipartFile detailImageFile;
+
     private String origin;
     
     // 헬퍼 메서드

@@ -13,6 +13,7 @@ import com.moodeng.ezshop.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public class ItemService {
     private final ImageStorageService imageStorageService;
 
     @Transactional
-    public void createItem(ItemCreateRequestDto requestDto, Long sellerId) {
+    public void createItem(ItemCreateRequestDto requestDto, MultipartFile thumbnailFile, MultipartFile detailImageFile, Long sellerId) {
 
 
         User seller = userRepository.findById(sellerId)
@@ -33,8 +34,8 @@ public class ItemService {
         Category category = categoryRepository.findById(requestDto.getCategoryId())
                 .orElseThrow(()->new IllegalArgumentException("유효하지 않은 카테고리 정보"));
 
-        String thumbnailUrl = imageStorageService.saveFile(requestDto.getThumbnailFile());
-        String detailImageUrl = imageStorageService.saveFile(requestDto.getDetailImageFile());
+        String thumbnailUrl = imageStorageService.saveFile(thumbnailFile);
+        String detailImageUrl = imageStorageService.saveFile(detailImageFile);
         Item item = requestDto.toEntity(seller,category,thumbnailUrl,detailImageUrl);
         itemRepository.save(item);
     }
