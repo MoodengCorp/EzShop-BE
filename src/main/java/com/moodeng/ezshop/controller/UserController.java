@@ -2,6 +2,7 @@ package com.moodeng.ezshop.controller;
 
 import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
+import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
@@ -67,5 +68,17 @@ public class UserController {
         ProfileResponseDto profileResponseDto = userService.getProfileInfo(email);
 
         return ResponseEntity.ok(CommonResponse.ofSuccess(profileResponseDto));
+    }
+
+    @PatchMapping()
+    public ResponseEntity<CommonResponse<Void>> updateProfileInfo(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ProfileUpdateRequestDto updateDto
+    ) {
+        String email = userDetails.getUsername();
+
+        userService.updateProfileInfo(email, updateDto);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 }

@@ -2,6 +2,7 @@ package com.moodeng.ezshop.service;
 
 import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
+import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
 import com.moodeng.ezshop.dto.response.ProfileResponseDto;
@@ -92,5 +93,25 @@ public class UserService {
                 .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
         return ProfileResponseDto.from(user);
+    }
+
+    @Transactional
+    public void updateProfileInfo(String email, ProfileUpdateRequestDto updateDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+
+        if(StringUtils.hasText(updateDto.getName())) {
+            user.setName(updateDto.getName());
+        }
+        if(StringUtils.hasText(updateDto.getPhone())) {
+            user.setPhone(updateDto.getPhone());
+        }
+        if(StringUtils.hasText(updateDto.getAddress())) {
+            user.setAddress(updateDto.getAddress());
+        }
+        if(StringUtils.hasText(updateDto.getNewPassword())) {
+            user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
+        }
     }
 }
