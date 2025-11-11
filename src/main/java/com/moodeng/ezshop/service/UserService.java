@@ -4,8 +4,10 @@ import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.entity.User;
+import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,7 +29,7 @@ public class UserService {
     @Transactional
     public void signup(SignupRequestDto signupDto) {
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new BusinessLogicException(ResponseCode.DUPLICATED_EMAIL);
         }
         String encodedPassword = passwordEncoder.encode(signupDto.getPassword());
 
@@ -39,10 +41,10 @@ public class UserService {
     @Transactional
     public LoginDetails login(LoginRequestDto loginDto) {
         User user = userRepository.findByEmail(loginDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
@@ -55,7 +57,7 @@ public class UserService {
 
     @Transactional
     public void logout(String accessToken, String refreshToken) {
-        if(StringUtils.hasText(accessToken)) {
+        if (StringUtils.hasText(accessToken)) {
             Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromAccessToken(accessToken);
 
             if (remainingTime > 0) {
@@ -68,7 +70,7 @@ public class UserService {
             }
         }
 
-        if(StringUtils.hasText(accessToken)) {
+        if (StringUtils.hasText(accessToken)) {
             Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromRefreshToken(refreshToken);
 
             if (remainingTime > 0) {

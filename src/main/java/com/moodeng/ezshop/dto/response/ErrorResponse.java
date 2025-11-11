@@ -1,6 +1,5 @@
 package com.moodeng.ezshop.dto.response;
 
-import com.moodeng.ezshop.dto.response.ResponseCode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
