@@ -2,16 +2,21 @@ package com.moodeng.ezshop.service;
 
 import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
+import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.response.ProfileResponseDto;
+import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.entity.User;
+import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,9 +30,8 @@ public class UserService {
 
     @Transactional
     public void signup(SignupRequestDto signupDto) {
-        // Email Duplicate check
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new BusinessLogicException(ResponseCode.DUPLICATED_EMAIL);
         }
         String encodedPassword = passwordEncoder.encode(signupDto.getPassword());
 
@@ -39,24 +43,83 @@ public class UserService {
     @Transactional
     public LoginDetails login(LoginRequestDto loginDto) {
         User user = userRepository.findByEmail(loginDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        redisTemplate.opsForValue().set(
-                user.getEmail(),
-                refreshToken,
-                jwtTokenProvider.getRefreshExpirationTime(),
-                TimeUnit.MILLISECONDS
-        );
-
-        LoginResponseDto loginResponse =LoginResponseDto.of(user, accessToken);
+        LoginResponseDto loginResponse = LoginResponseDto.of(user, accessToken);
 
         return new LoginDetails(loginResponse, refreshToken);
+    }
+
+    @Transactional
+    public void logout(String accessToken, String refreshToken) {
+        if (StringUtils.hasText(accessToken)) {
+            Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromAccessToken(accessToken);
+
+            if (remainingTime > 0) {
+                redisTemplate.opsForValue().set(
+                        accessToken,
+                        "logout",
+                        remainingTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        }
+
+        if (StringUtils.hasText(accessToken)) {
+            Long remainingTime = jwtTokenProvider.getRemainingExpirationTimeFromRefreshToken(refreshToken);
+
+            if (remainingTime > 0) {
+                redisTemplate.opsForValue().set(
+                        refreshToken,
+                        "logout",
+                        remainingTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileResponseDto getProfileInfo(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        return ProfileResponseDto.from(user);
+    }
+
+    @Transactional
+    public void updateProfileInfo(String email, ProfileUpdateRequestDto updateDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+
+        if(StringUtils.hasText(updateDto.getName())) {
+            user.setName(updateDto.getName());
+        }
+        if(StringUtils.hasText(updateDto.getPhone())) {
+            user.setPhone(updateDto.getPhone());
+        }
+        if(StringUtils.hasText(updateDto.getAddress())) {
+            user.setAddress(updateDto.getAddress());
+        }
+        if(StringUtils.hasText(updateDto.getNewPassword())) {
+            user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
+        }
+    }
+
+    @Transactional
+    public void signout(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        userRepository.delete(user);
     }
 }
