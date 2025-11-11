@@ -2,19 +2,23 @@ package com.moodeng.ezshop.controller;
 
 import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
+import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
+import com.moodeng.ezshop.dto.response.CommonResponse;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.response.ProfileResponseDto;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.service.UserService;
+import com.moodeng.ezshop.util.CookieUtils;
+import com.moodeng.ezshop.util.RequestUtils;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
@@ -25,29 +29,77 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<CommonResponse<Void>> signup(@RequestBody SignupRequestDto signupRequestDto) {
 
         userService.signup(signupRequestDto);
 
-        return new ResponseEntity<>("회원 가입이 완료되었습니다.", HttpStatus.OK);
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<CommonResponse<LoginResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
         LoginDetails loginDetails = userService.login(loginRequestDto);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", loginDetails.getRefreshToken());
+        int maxAgeSeconds = (int) (jwtTokenProvider.getRefreshExpirationTime() / 1000);
+        CookieUtils.addRefreshTokenCookie(response, loginDetails.getRefreshToken(), maxAgeSeconds);
 
-        // Cookie setting
-        refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
+        return ResponseEntity.ok(CommonResponse.ofSuccess(loginDetails.getLoginResponseDto()));
+    }
 
-        int maxAge = (int) (jwtTokenProvider.getRefreshExpirationTime() / 1000);
-        refreshTokenCookie.setMaxAge(maxAge);
+    @GetMapping("/logout")
+    public ResponseEntity<CommonResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie) {
+        String accessToken = RequestUtils.extractToken(request);
+        String refreshToken = CookieUtils.getRefreshToken(refreshTokenCookie);
 
-        response.addCookie(refreshTokenCookie);
-        return new ResponseEntity<>(loginDetails.getLoginResponseDto(), HttpStatus.OK);
+        userService.logout(accessToken, refreshToken);
+
+        CookieUtils.expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<CommonResponse<ProfileResponseDto>> getProfileInfo(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+
+        ProfileResponseDto profileResponseDto = userService.getProfileInfo(email);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess(profileResponseDto));
+    }
+
+    @PatchMapping()
+    public ResponseEntity<CommonResponse<Void>> updateProfileInfo(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ProfileUpdateRequestDto updateDto
+    ) {
+        String email = userDetails.getUsername();
+
+        userService.updateProfileInfo(email, updateDto);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<CommonResponse<Void>> signout(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie
+    ) {
+        String email = userDetails.getUsername();
+
+        userService.signout(email);
+
+        String accessToken = RequestUtils.extractToken(request);
+        String refreshToken = CookieUtils.getRefreshToken(refreshTokenCookie);
+
+        userService.logout(accessToken, refreshToken);
+
+        CookieUtils.expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 }

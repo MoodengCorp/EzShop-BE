@@ -1,5 +1,6 @@
 package com.moodeng.ezshop.auth;
 
+import com.moodeng.ezshop.util.RequestUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String token = extractToken(request);
+        String token = RequestUtils.extractToken(request);
 
         if (StringUtils.hasText(token)) {
             if (redisTemplate.hasKey(token)) {
@@ -52,13 +53,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String extractToken(HttpServletRequest request) {
-        String HEADER_AUTHORIZATION = "Authorization";
-        String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
-        String TOKEN_PREFIX = "Bearer ";
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
-            return bearerToken.substring(TOKEN_PREFIX.length()); // "Bearer " (7글자) 이후의 토큰 값 반환
-        }
-        return null;
-    }
+
 }
