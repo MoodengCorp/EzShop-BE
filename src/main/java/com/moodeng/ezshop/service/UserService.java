@@ -114,4 +114,12 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
         }
     }
+
+    @Transactional
+    public void signout(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        userRepository.delete(user);
+    }
 }

@@ -81,4 +81,25 @@ public class UserController {
 
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
+
+    @DeleteMapping()
+    public ResponseEntity<CommonResponse<Void>> signout(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie
+    ) {
+        String email = userDetails.getUsername();
+
+        userService.signout(email);
+
+        String accessToken = RequestUtils.extractToken(request);
+        String refreshToken = CookieUtils.getRefreshToken(refreshTokenCookie);
+
+        userService.logout(accessToken, refreshToken);
+
+        CookieUtils.expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
 }

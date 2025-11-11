@@ -16,6 +16,7 @@ public enum ResponseCode {
     SIGNUP_SUCCESS(HttpStatus.OK, "회원 가입이 완료되었습니다."),
     LOGIN_SUCCESS(HttpStatus.OK, "로그인되었습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 되었습니다."),
+    SIGNOUT_SUCCESS(HttpStatus.OK, "회원 탈퇴가 완료되었습니다."),
 
     // Errors
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
