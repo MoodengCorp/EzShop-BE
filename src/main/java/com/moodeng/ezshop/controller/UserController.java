@@ -4,10 +4,9 @@ import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
 import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
-import com.moodeng.ezshop.dto.response.CommonResponse;
-import com.moodeng.ezshop.dto.response.LoginResponseDto;
-import com.moodeng.ezshop.dto.response.ProfileResponseDto;
+import com.moodeng.ezshop.dto.response.*;
 import com.moodeng.ezshop.dto.service.LoginDetails;
+import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.service.UserService;
 import com.moodeng.ezshop.util.CookieUtils;
 import com.moodeng.ezshop.util.RequestUtils;
@@ -101,5 +100,22 @@ public class UserController {
         CookieUtils.expireRefreshTokenCookie(response);
 
         return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<CommonResponse<ReissueResponseDto>> reissue(
+            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie
+    ) {
+        if (refreshTokenCookie == null) {
+            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN, "리프레시 토큰 쿠키가 없습니다.");
+        }
+        String refreshToken = refreshTokenCookie.getValue();
+        if (refreshToken == null) {
+            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN, "리프레시 토큰이 없습니다.");
+        }
+
+        ReissueResponseDto reissueResponseDto = userService.reissue(refreshToken);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess(reissueResponseDto));
     }
 }

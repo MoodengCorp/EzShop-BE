@@ -1,5 +1,6 @@
 package com.moodeng.ezshop.auth;
 
+import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.util.RequestUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
+import static com.moodeng.ezshop.util.ResponseUtils.writeErrorResponse;
 
 @Slf4j
 @Component
@@ -38,7 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token)) {
             if (redisTemplate.hasKey(token)) {
-                log.warn("로그아웃(Blacklist)된 토큰입니다.");
+                log.warn("SecurityException: {}", ResponseCode.TOKEN_IS_BLACKLIST.getMessage());
+                writeErrorResponse(response, ResponseCode.TOKEN_IS_BLACKLIST);
+                return;
             } else if (jwtTokenProvider.validateAccessToken(token)) {
                 String email = jwtTokenProvider.getEmailFromAccessToken(token);
 
@@ -52,6 +57,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-
 }
