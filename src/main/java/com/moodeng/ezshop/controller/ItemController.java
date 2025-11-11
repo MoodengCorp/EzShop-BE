@@ -52,8 +52,4 @@ public class ItemController {
         ItemSearchResponseDto responseDto = itemService.searchItems(requestDto);
         return ResponseEntity.ok(responseDto);
     }
-
-
-
-
 }
