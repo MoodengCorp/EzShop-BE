@@ -4,6 +4,7 @@ import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.response.ProfileResponseDto;
 import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.entity.User;
@@ -82,5 +83,14 @@ public class UserService {
                 );
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileResponseDto getProfileInfo(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        return ProfileResponseDto.from(user);
     }
 }

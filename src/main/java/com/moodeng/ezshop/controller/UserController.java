@@ -5,6 +5,7 @@ import com.moodeng.ezshop.dto.request.LoginRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
+import com.moodeng.ezshop.dto.response.ProfileResponseDto;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.service.UserService;
 import com.moodeng.ezshop.util.CookieUtils;
@@ -14,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,5 +56,16 @@ public class UserController {
         CookieUtils.expireRefreshTokenCookie(response);
 
         return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<CommonResponse<ProfileResponseDto>> getProfileInfo(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+
+        ProfileResponseDto profileResponseDto = userService.getProfileInfo(email);
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess(profileResponseDto));
     }
 }
