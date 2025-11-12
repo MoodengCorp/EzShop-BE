@@ -105,13 +105,9 @@ public class UserController {
 
     @PostMapping("/reissue")
     public ResponseEntity<CommonResponse<ReissueResponseDto>> reissue(
-            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie
+            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken
     ) {
-        if (refreshTokenCookie == null) {
-            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN, "리프레시 토큰 쿠키가 없습니다.");
-        }
-        String refreshToken = refreshTokenCookie.getValue();
-        if (refreshToken == null) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
             throw new BusinessLogicException(ResponseCode.INVALID_TOKEN, "리프레시 토큰이 없습니다.");
         }
 

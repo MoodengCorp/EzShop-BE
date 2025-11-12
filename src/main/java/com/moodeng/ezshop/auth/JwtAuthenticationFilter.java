@@ -19,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.moodeng.ezshop.util.ResponseUtils.writeErrorResponse;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,7 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token)) {
             if (redisTemplate.hasKey(token)) {
                 log.warn("SecurityException: {}", ResponseCode.TOKEN_IS_BLACKLIST.getMessage());
-                writeErrorResponse(response, ResponseCode.TOKEN_IS_BLACKLIST);
                 return;
             } else if (jwtTokenProvider.validateAccessToken(token)) {
                 String email = jwtTokenProvider.getEmailFromAccessToken(token);
