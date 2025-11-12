@@ -143,4 +143,14 @@ public class UserService {
 
         return ReissueResponseDto.of(newAccessToken);
     }
+
+    @Transactional(readOnly = true)
+    public void checkPassword(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS, "비밀번호가 일치하지 않습니다.");
+        }
+    }
 }

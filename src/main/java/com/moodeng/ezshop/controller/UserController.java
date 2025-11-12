@@ -2,6 +2,7 @@ package com.moodeng.ezshop.controller;
 
 import com.moodeng.ezshop.auth.JwtTokenProvider;
 import com.moodeng.ezshop.dto.request.LoginRequestDto;
+import com.moodeng.ezshop.dto.request.PasswordCheckRequestDto;
 import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.*;
@@ -117,5 +118,17 @@ public class UserController {
         ReissueResponseDto reissueResponseDto = userService.reissue(refreshToken);
 
         return ResponseEntity.ok(CommonResponse.ofSuccess(reissueResponseDto));
+    }
+
+    @PostMapping("/passwordcheck")
+    public ResponseEntity<CommonResponse<Void>> checkPassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody PasswordCheckRequestDto passwordDto
+    ) {
+        String email = userDetails.getUsername();
+
+        userService.checkPassword(email, passwordDto.getPassword());
+
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 }
