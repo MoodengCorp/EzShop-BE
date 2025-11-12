@@ -6,6 +6,7 @@ import com.moodeng.ezshop.dto.request.ProfileUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SignupRequestDto;
 import com.moodeng.ezshop.dto.response.LoginResponseDto;
 import com.moodeng.ezshop.dto.response.ProfileResponseDto;
+import com.moodeng.ezshop.dto.response.ReissueResponseDto;
 import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.dto.service.LoginDetails;
 import com.moodeng.ezshop.entity.User;
@@ -121,5 +122,35 @@ public class UserService {
                 .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
         userRepository.delete(user);
+    }
+
+    @Transactional(readOnly = true)
+    public ReissueResponseDto reissue(String refreshToken) {
+
+        if(redisTemplate.hasKey(refreshToken)) {
+            throw new BusinessLogicException(ResponseCode.TOKEN_IS_BLACKLIST);
+        }
+
+        if(!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN);
+        }
+
+        String email = jwtTokenProvider.getEmailFromRefreshToken(refreshToken);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
+
+        return ReissueResponseDto.of(newAccessToken);
+    }
+
+    @Transactional(readOnly = true)
+    public void checkPassword(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS, "비밀번호가 일치하지 않습니다.");
+        }
     }
 }
