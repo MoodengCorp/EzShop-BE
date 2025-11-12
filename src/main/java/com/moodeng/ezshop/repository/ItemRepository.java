@@ -2,8 +2,7 @@ package com.moodeng.ezshop.repository;
 
 import com.moodeng.ezshop.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-@Repository
-public interface ItemRepository extends JpaRepository<Item,Long> {
+public interface ItemRepository extends JpaRepository<Item,Long>, JpaSpecificationExecutor<Item> {
 }
