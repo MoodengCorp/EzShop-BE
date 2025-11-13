@@ -1,5 +1,6 @@
-package com.moodeng.ezshop.dto.item.response;
+package com.moodeng.ezshop.dto.response;
 
+import com.moodeng.ezshop.constant.DeliveryType;
 import com.moodeng.ezshop.entity.Item;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,10 @@ public class ItemDetailResponseDto {
     private String thumbnailUrl;
     private String detailImageUrl;
     private String origin;
+    private DeliveryType deliveryType;
+    private String packagingType;
+    private String salesUnit;
+    private Integer weight;
 
     public static ItemDetailResponseDto fromEntity(Item item) {
         return ItemDetailResponseDto.builder()
@@ -25,7 +30,10 @@ public class ItemDetailResponseDto {
                 .thumbnailUrl(item.getThumbnailUrl())
                 .detailImageUrl(item.getDetailImageUrl())
                 .origin(item.getOrigin())
+                .deliveryType(item.getDeliveryType())
+                .packagingType(item.getPackagingType())
+                .salesUnit(item.getSalesUnit())
+                .weight(item.getWeight())
                 .build();
     }
-
 }

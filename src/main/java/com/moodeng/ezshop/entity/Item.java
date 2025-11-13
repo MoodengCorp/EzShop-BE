@@ -1,5 +1,6 @@
 package com.moodeng.ezshop.entity;
 
+import com.moodeng.ezshop.constant.DeliveryType;
 import com.moodeng.ezshop.constant.ItemStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,14 +32,25 @@ public class Item extends BaseEntity{
     @Column(name = "origin", length = 50)
     private String origin;
 
-//    중량은 일단 기입안했음
-//    private Integer weight;
-    
-    @Column(name = "price",  nullable = false)
-    private Integer price;
+    // 추가된 필드들
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_type")
+    private DeliveryType deliveryType; // 샛별배송, 일반배송
+
+    @Column(name = "packaging_type")
+    private String packagingType; // 포장타입
+
+    @Column(name = "sales_unit")
+    private String salesUnit; // 판매단위
+
+    @Column(name = "weight")
+    private Integer weight; // 숫자만 저장되니까 프론트에서 단위처리는 프론트에서 통일하면 될 듯 (g으로?)
 
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
+    @Column(name = "price",  nullable = false)
+    private Integer price;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "item_status", nullable = false)

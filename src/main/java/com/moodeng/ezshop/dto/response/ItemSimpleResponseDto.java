@@ -1,4 +1,4 @@
-package com.moodeng.ezshop.dto.item.response;
+package com.moodeng.ezshop.dto.response;
 
 
 import com.moodeng.ezshop.entity.Item;
@@ -10,7 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class ItemSimpleResponseDto {
-
     // 상품 목록조회를 위한 Dto
     private Long itemId;
     private String name;

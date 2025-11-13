@@ -1,9 +1,9 @@
 package com.moodeng.ezshop.controller;
 
-import com.moodeng.ezshop.dto.item.request.ItemCreateRequestDto;
-import com.moodeng.ezshop.dto.item.request.ItemSearchRequestDto;
-import com.moodeng.ezshop.dto.item.response.ItemDetailResponseDto;
-import com.moodeng.ezshop.dto.item.response.ItemSearchResponseDto;
+import com.moodeng.ezshop.dto.request.ItemCreateRequestDto;
+import com.moodeng.ezshop.dto.request.ItemSearchRequestDto;
+import com.moodeng.ezshop.dto.response.ItemDetailResponseDto;
+import com.moodeng.ezshop.dto.response.ItemSearchResponseDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
 import com.moodeng.ezshop.service.ItemService;
 import jakarta.validation.Valid;
@@ -21,7 +21,6 @@ public class ItemController {
 
     private final ItemService itemService;
 
-
     // 상품 생성
     @PostMapping
     public ResponseEntity<CommonResponse<Void>> createItem(
@@ -34,9 +33,8 @@ public class ItemController {
 
         // Controller에서 user의 권한 정보를 처리하는게 나아보여서,
         // controller에서 user정보까지 포함된 entity를 조립해서 service에 보내는 방향으로 수정 고민중
-        // UserDetail에서 현재는 email만 가져오는 것 같은데 id를 가져오는 방법은 없을지?
-        Long sellerId = 1L; // 임시 값
-        itemService.createItem(itemCreateRequestDto, thumbnailFile, detailImageFile, sellerId);
+        String email = userDetails.getUsername();
+        itemService.createItem(itemCreateRequestDto, thumbnailFile, detailImageFile, email);
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 
