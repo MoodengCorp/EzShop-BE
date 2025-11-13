@@ -17,6 +17,7 @@ public enum ResponseCode {
     LOGIN_SUCCESS(HttpStatus.OK, "로그인되었습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 되었습니다."),
     SIGNOUT_SUCCESS(HttpStatus.OK, "회원 탈퇴가 완료되었습니다."),
+    REISSUE_SUCCESS(HttpStatus.OK, "토큰 재발급에 성공했습니다."),
 
     // Errors
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
@@ -25,6 +26,8 @@ public enum ResponseCode {
 
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자 입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    TOKEN_IS_BLACKLIST(HttpStatus.UNAUTHORIZED, "로그아웃된 사용자 입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효한 토큰이 아닙니다."),
 
     NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 
