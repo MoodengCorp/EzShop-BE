@@ -14,7 +14,7 @@ public interface ItemRepository extends JpaRepository<Item,Long> {
 
     // 동적 검색 & 페이지네이션
     // price 필터 추가하기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //
+    // 쿼리는 날려버리고 서비스단에서 PK 추출한 후에 기본제공으로 날릴 수 있나?
     @Query("""
             select i from Item i left join i.category c
             where (i.status = com.moodeng.ezshop.constant.ItemStatus.ACTIVE)
