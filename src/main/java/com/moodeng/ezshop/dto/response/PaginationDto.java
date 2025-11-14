@@ -15,6 +15,7 @@ public class PaginationDto {
     private final boolean hasNext;
     private final boolean hasPrev;
 
+    // 범용성을 위해 와일드카드를 활용함
     public static PaginationDto fromPage(Page<?> page){
 
         return PaginationDto.builder()

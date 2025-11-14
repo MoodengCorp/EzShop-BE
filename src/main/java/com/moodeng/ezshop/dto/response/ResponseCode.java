@@ -37,8 +37,8 @@ public enum ResponseCode {
     // Item_Error
     SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 판매자 정보입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 카테고리 정보입니다."),
-    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다.");
-
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+    INVALID_FILTER_FORMAT(HttpStatus.BAD_REQUEST, "상품 목록조회 필터 형식이 올바르지 않습니다. (예: price:5000-10000)");
 
     private final HttpStatus httpStatus;
     private final String message;

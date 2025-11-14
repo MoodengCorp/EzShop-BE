@@ -2,9 +2,7 @@ package com.moodeng.ezshop.service;
 
 import com.moodeng.ezshop.dto.request.ItemCreateRequestDto;
 import com.moodeng.ezshop.dto.request.ItemSearchRequestDto;
-import com.moodeng.ezshop.dto.response.ItemDetailResponseDto;
-import com.moodeng.ezshop.dto.response.ItemSearchResponseDto;
-import com.moodeng.ezshop.dto.response.ResponseCode;
+import com.moodeng.ezshop.dto.response.*;
 import com.moodeng.ezshop.entity.Category;
 import com.moodeng.ezshop.entity.Item;
 import com.moodeng.ezshop.entity.User;
@@ -13,10 +11,13 @@ import com.moodeng.ezshop.repository.CategoryRepository;
 import com.moodeng.ezshop.repository.ItemRepository;
 import com.moodeng.ezshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +56,32 @@ public class ItemService {
     // 상품 목록 조회
     @Transactional(readOnly = true)
     public ItemSearchResponseDto searchItems(ItemSearchRequestDto requestDto) {
-//        Pageable pageable = requestDto.toPageable();
-        return ItemSearchResponseDto.builder().build();
+        Pageable pageable = requestDto.toPageable();
+
+        Integer minPrice = requestDto.getMinPrice();
+        Integer maxPrice = requestDto.getMaxPrice();
+
+        Page<Item> itemPage = itemRepository.findBySearchConditions(
+                requestDto.getKeyword(),
+                requestDto.getCategoryName(),
+                minPrice,
+                maxPrice,
+                pageable
+        );
+
+        // repository에서 받아온 Page 객체에서 List<Item>을 받아온 후에 List<ItemSimpleResponseDto> 로 변환
+        List<ItemSimpleResponseDto> itemDtos = itemPage.getContent()
+                .stream()
+                .map(ItemSimpleResponseDto::fromEntity)
+                .toList();
+
+        // Page 객체를 Dto에 담음
+        PaginationDto paginationDto = PaginationDto.fromPage(itemPage);
+
+        // Item 리스트와 pagination 객체를 통해서 응답객체 조립
+        return ItemSearchResponseDto.builder()
+                .items(itemDtos)
+                .pagination(paginationDto)
+                .build();
     }
 }

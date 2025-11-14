@@ -2,6 +2,7 @@ package com.moodeng.ezshop.controller;
 
 import com.moodeng.ezshop.dto.request.ItemCreateRequestDto;
 import com.moodeng.ezshop.dto.request.ItemSearchRequestDto;
+import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import com.moodeng.ezshop.dto.response.ItemDetailResponseDto;
 import com.moodeng.ezshop.dto.response.ItemSearchResponseDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
@@ -58,4 +59,21 @@ public class ItemController {
         ItemSearchResponseDto responseDto = itemService.searchItems(requestDto);
         return ResponseEntity.ok(CommonResponse.ofSuccess(responseDto));
     }
+
+
+    // 상품 수정
+    @PatchMapping("/{itemId}")
+    public ResponseEntity<CommonResponse<Void>> updateItem(
+            @PathVariable Long itemId,
+            @Valid @RequestPart ItemUpdateRequestDto requestDto,
+            @RequestPart(value="thumbnailFile", required = false) MultipartFile thumbnailFile,
+            @RequestPart(value="detailImageFile", required = false) MultipartFile detailImageFile,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        String email = userDetails.getUsername();
+//        itemService.updateItem(itemId, requestDto, thumbnailFile, detailImageFile, email);
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+
 }

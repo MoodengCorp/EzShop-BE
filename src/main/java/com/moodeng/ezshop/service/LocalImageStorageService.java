@@ -12,7 +12,7 @@ public class LocalImageStorageService implements ImageStorageService {
         if (file == null || file.isEmpty()) {
             return null;
         }
-        return "";
+        return "test_url_save";
     }
 
     @Override
@@ -25,7 +25,7 @@ public class LocalImageStorageService implements ImageStorageService {
     @Override
     public String updateFile(String oldFileUrl, MultipartFile newFile) {
         String newFileName = newFile.getOriginalFilename();
-        return "";
+        return "test_url_update";
     }
 
     @Override
