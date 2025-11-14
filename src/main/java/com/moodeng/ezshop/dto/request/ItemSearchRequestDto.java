@@ -24,7 +24,7 @@ public class ItemSearchRequestDto {
         if (this.sortedType == 2){
             
         }
-        return PageRequest.of(this.page - 1, this.perPage, sort);
+//        return PageRequest.of(this.page - 1, this.perPage, sort);
     }
 
 }
