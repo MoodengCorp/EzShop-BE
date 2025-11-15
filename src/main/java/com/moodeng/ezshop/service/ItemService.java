@@ -12,7 +12,6 @@ import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.repository.CategoryRepository;
 import com.moodeng.ezshop.repository.ItemRepository;
 import com.moodeng.ezshop.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

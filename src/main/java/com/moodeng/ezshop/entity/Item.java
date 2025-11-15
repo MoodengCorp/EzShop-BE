@@ -5,7 +5,6 @@ import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name="item")

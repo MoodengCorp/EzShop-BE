@@ -4,14 +4,12 @@ package com.moodeng.ezshop.dto.request;
 import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.exception.BusinessLogicException;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
