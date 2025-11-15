@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/signup", "/user/login", "/user/logout").permitAll()
+                        .requestMatchers("/user/signup", "/user/login", "/user/logout", "user/reissue").permitAll()
                         // 테스트용으로 아이템 관련 요청은 일단 다 열어둠
                         .requestMatchers("/item/**").permitAll()
                         .anyRequest().authenticated()
