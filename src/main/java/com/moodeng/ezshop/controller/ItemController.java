@@ -60,6 +60,17 @@ public class ItemController {
         return ResponseEntity.ok(CommonResponse.ofSuccess(responseDto));
     }
 
+    // 내 판매상품 조회(판매자용)
+    @GetMapping("/my")
+    public ResponseEntity<CommonResponse<ItemSearchResponseDto>> getMyItems(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @ModelAttribute ItemSearchRequestDto requestDto
+    ){
+        String email = userDetails.getUsername();
+        ItemSearchResponseDto responseDto = itemService.searchMyItems(requestDto, email);
+        return ResponseEntity.ok(CommonResponse.ofSuccess(responseDto));
+    }
+
 
     // 상품 수정
     @PatchMapping("/{itemId}")
@@ -71,9 +82,11 @@ public class ItemController {
             @AuthenticationPrincipal UserDetails userDetails
     ){
         String email = userDetails.getUsername();
-//        itemService.updateItem(itemId, requestDto, thumbnailFile, detailImageFile, email);
+        itemService.updateItem(itemId, requestDto, thumbnailFile, detailImageFile, email);
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
+
+
 
 
 }

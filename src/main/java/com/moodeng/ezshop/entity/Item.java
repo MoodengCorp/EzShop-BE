@@ -2,8 +2,10 @@ package com.moodeng.ezshop.entity;
 
 import com.moodeng.ezshop.constant.DeliveryType;
 import com.moodeng.ezshop.constant.ItemStatus;
+import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name="item")
@@ -62,5 +64,69 @@ public class Item extends BaseEntity{
     @Column(name = "thumbnail_url", length = 255)
     private String thumbnailUrl;
 
+
+    // 상품 정보 수정 헬퍼 메서드 : dto의 정보를 영속성 컨텍스트에 올라온 item에 반영해줌
+    // 코드가 지저분해진것 같아서 리플렉션으로 안될까 찾아보니 성능도 떨어지고 비즈니스 로직을 반영하기 어려워진다고 하네요.
+    public void update(ItemUpdateRequestDto requestDto, Category newCategory,
+                       String newThumbnailUrl, String newDetailImageUrl,
+                       Boolean thumbnailChanged, boolean detailImageChanged) {
+
+        if (requestDto.getName() != null) {
+            this.name = requestDto.getName();
+        }
+        if (requestDto.getPrice() != null) {
+            this.price = requestDto.getPrice();
+        }
+
+        if (requestDto.getOrigin() != null) {
+            this.origin = requestDto.getOrigin();
+        }
+        if (requestDto.getPackagingType() != null) {
+            this.packagingType = requestDto.getPackagingType();
+        }
+        if (requestDto.getSalesUnit() != null) {
+            this.salesUnit = requestDto.getSalesUnit();
+        }
+        if (requestDto.getWeight() != null) {
+            this.weight = requestDto.getWeight();
+        }
+        if (requestDto.getPrice() != null) {
+            this.price = requestDto.getPrice();
+        }
+        if (requestDto.getDeliveryType() != null) {
+            this.deliveryType = requestDto.getDeliveryType();
+        }
+
+        if (newCategory != null) {
+            this.category = newCategory;
+        }
+
+        // 썸네일 변경의사가 있다면 변경
+        if (thumbnailChanged){
+            this.thumbnailUrl = newThumbnailUrl;
+        }
+
+        // 상세 정보 이미지 변경의사가 있다면 변경
+        if (detailImageChanged){
+            this.detailImageUrl = newDetailImageUrl;
+        }
+
+        if (requestDto.getStockQuantity() != null) {
+            this.stockQuantity = requestDto.getStockQuantity();
+        }
+
+        // 재고가 0인경우 SOLDOUT으로 바꿔줌
+        if (this.stockQuantity <= 0 && this.status != ItemStatus.HIDDEN) {
+            this.status = ItemStatus.SOLDOUT;
+        }
+
+        // SOLDOUT 상태에서 재고가 0이 아니게 되면 ACTIVE로 변경
+        // 사용자가 item을 업데이트할때 HIDDEN을 선택한 경우 if문의 순서로 인해서 ACTIVE로 전환 안됨
+        if (this.status == ItemStatus.SOLDOUT && this.stockQuantity > 0) {
+            this.status = ItemStatus.ACTIVE;
+        }
+
+
+    }
 
 }

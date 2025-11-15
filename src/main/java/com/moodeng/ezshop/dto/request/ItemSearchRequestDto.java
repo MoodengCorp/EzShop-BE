@@ -1,8 +1,11 @@
 package com.moodeng.ezshop.dto.request;
 
 
+import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.exception.BusinessLogicException;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ItemSearchRequestDto {
@@ -18,9 +23,18 @@ public class ItemSearchRequestDto {
     private String keyword;
     private String categoryName;
     private String filter;
-    private Integer page; //조회할 페이지 번호 (Default: 1)
-    private Integer perPage;
-    private Integer sortedType; //정렬 기준(1 : 신상품순, 2 : 높은 가격순, 3 : 낮은 가격순) (Default: 1)
+
+    @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
+    private Integer page = 1; //조회할 페이지 번호 (Default: 1)
+
+    @Min(value = 1, message = "페이지 당 항목 수는 1 이상이어야 합니다.")
+    private Integer perPage = 10; // 기본값 10
+    private Integer sortedType = 1; //정렬 기준(1 : 신상품순, 2 : 높은 가격순, 3 : 낮은 가격순) (Default: 1)
+    
+    // seller가 자기상품을 조회하는 경우가 추가되면서 일반유저와 판매자가 볼 수 있는 아이템상태가 다르므로 ItemStatus필드를 추가함
+    // 여러개를 선택할 수 있으므로 list로 받음
+    private List<ItemStatus> itemStatus;
+
 
     public Pageable toPageable(){
         Sort sort;
