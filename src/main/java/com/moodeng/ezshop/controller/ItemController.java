@@ -76,7 +76,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<CommonResponse<Void>> updateItem(
             @PathVariable Long itemId,
-            @Valid @RequestPart ItemUpdateRequestDto requestDto,
+            @Valid @RequestPart("dto") ItemUpdateRequestDto requestDto,
             @RequestPart(value="thumbnailFile", required = false) MultipartFile thumbnailFile,
             @RequestPart(value="detailImageFile", required = false) MultipartFile detailImageFile,
             @AuthenticationPrincipal UserDetails userDetails

@@ -26,16 +26,13 @@ public class ItemUpdateRequestDto {
     @Max(value = 100000000, message = "재고 수량은 1억 이하여야 합니다")
     private Integer stockQuantity;
 
-    @Size(min = 1, message = "원산지는 1자 이상이어야 합니다.")
     private String origin;
 
     private ItemStatus status;
     private DeliveryType deliveryType;
 
-    @Size(min = 1, message = "포장타입은 1자 이상이어야 합니다.")
     private String packagingType;
 
-    @Size(min = 1, message = "판매단위는 1자 이상이어야 합니다.")
     private String salesUnit;
 
     @Min(value = 0, message = "중량은 0 이상이어야 합니다")

@@ -2,11 +2,12 @@ package com.moodeng.ezshop.repository;
 
 import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.entity.Item;
-import io.lettuce.core.dynamic.annotation.Param;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item,Long> {
     // pagination으로 인해 자동으로 정렬까지 됨
     @Query("""
             select i from Item i left join i.category c
-            where (:status is null or i.status in :statusList)
+            where (:statusList is null or i.status in :statusList)
             and (:keyword is null or i.name like %:keyword%)
             and (:categoryName is null or c.name = :categoryName)
             and (:minPrice is null or i.price >= :minPrice)
