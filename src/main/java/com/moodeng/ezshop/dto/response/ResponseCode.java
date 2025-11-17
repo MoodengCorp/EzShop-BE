@@ -19,6 +19,10 @@ public enum ResponseCode {
     SIGNOUT_SUCCESS(HttpStatus.OK, "회원 탈퇴가 완료되었습니다."),
     REISSUE_SUCCESS(HttpStatus.OK, "토큰 재발급에 성공했습니다."),
 
+
+    // Item
+    ITEM_CREATED_SUCCESS(HttpStatus.CREATED,"상품을 성공적으로 등록했습니다."),
+
     // Errors
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다."),
@@ -31,8 +35,14 @@ public enum ResponseCode {
 
     NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에 문제가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에 문제가 발생했습니다."),
 
+    // Item_Error
+    SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 판매자 정보입니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 카테고리 정보입니다."),
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+    INVALID_FILTER_FORMAT(HttpStatus.BAD_REQUEST, "상품 목록조회 필터 형식이 올바르지 않습니다. (예: price:5000-10000)"),
+    INVALID_ITEM_STATUS_UPDATE(HttpStatus.BAD_REQUEST, "변경할 수 없는 상품 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

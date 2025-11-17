@@ -30,3 +30,4 @@ public class CommonResponse<T> {
         return new CommonResponse<>(false, null, ErrorResponse.of(code, customMessage));
     }
 }
+
