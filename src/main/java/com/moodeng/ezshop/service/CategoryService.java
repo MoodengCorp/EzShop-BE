@@ -1,7 +1,7 @@
 package com.moodeng.ezshop.service;
 
 
-import com.moodeng.ezshop.dto.response.CategoryResponseDto;
+import com.moodeng.ezshop.dto.response.CategoryListResponseDto;
 import com.moodeng.ezshop.entity.Category;
 import com.moodeng.ezshop.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +15,13 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryResponseDto getAllCategories(){
+    public CategoryListResponseDto getAllCategories(){
 
         List<Category> categories = categoryRepository.findAll();
         List<String> categoryNames =categories.stream()
                 .map(Category::getName)
                 .toList();
-        return CategoryResponseDto.from(categoryNames);
+        return CategoryListResponseDto.from(categoryNames);
     }
 
 }
