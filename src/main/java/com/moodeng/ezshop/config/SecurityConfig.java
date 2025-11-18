@@ -34,9 +34,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/user/signup", "/user/login", "/user/logout", "/user/reissue").permitAll()
-                        // 테스트용으로 아이템 관련 요청은 일단 다 열어둠.
-
-                        .requestMatchers("/item/**").permitAll()
+                        .requestMatchers("/item/**").permitAll() // 테스트용으로 아이템 관련 요청은 일단 다 열어둠.
+                        .requestMatchers("/category").permitAll() // 카테고리 관련 요청은 비즈니스 로직상 다 열어두는게 맞음
                         .anyRequest().authenticated()
                 )
 
