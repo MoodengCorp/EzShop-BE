@@ -1,6 +1,6 @@
 package com.moodeng.ezshop.controller;
 
-import com.moodeng.ezshop.dto.response.CategoryResponseDto;
+import com.moodeng.ezshop.dto.response.CategoryListResponseDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
 import com.moodeng.ezshop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<CommonResponse<CategoryResponseDto>> getAllCategories() {
-        CategoryResponseDto responseDto = categoryService.getAllCategories();
+    public ResponseEntity<CommonResponse<CategoryListResponseDto>> getAllCategories() {
+        CategoryListResponseDto responseDto = categoryService.getAllCategories();
         return ResponseEntity.ok(CommonResponse.ofSuccess(responseDto));
     }
 }
