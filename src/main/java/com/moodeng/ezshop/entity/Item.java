@@ -6,6 +6,9 @@ import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name="item")
 @Getter
@@ -63,6 +66,9 @@ public class Item extends BaseEntity{
     @Column(name = "thumbnail_url", length = 255)
     private String thumbnailUrl;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     // 상품 정보 수정 헬퍼 메서드 : dto의 정보를 영속성 컨텍스트에 올라온 item에 반영해줌
     // 코드가 지저분해진것 같아서 리플렉션으로 안될까 찾아보니 성능도 떨어지고 비즈니스 로직을 반영하기 어려워진다고 하네요.
