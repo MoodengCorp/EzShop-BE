@@ -91,7 +91,7 @@ public class UserService {
     public ProfileResponseDto getProfileInfo(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
         return ProfileResponseDto.from(user);
     }
@@ -99,27 +99,27 @@ public class UserService {
     @Transactional
     public void updateProfileInfo(String email, ProfileUpdateRequestDto updateDto) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
 
-        if(StringUtils.hasText(updateDto.getName())) {
+        if (StringUtils.hasText(updateDto.getName())) {
             user.setName(updateDto.getName());
         }
-        if(StringUtils.hasText(updateDto.getPhone())) {
+        if (StringUtils.hasText(updateDto.getPhone())) {
             user.setPhone(updateDto.getPhone());
         }
-        if(StringUtils.hasText(updateDto.getAddress())) {
+        if (StringUtils.hasText(updateDto.getAddress())) {
             user.setAddress(updateDto.getAddress());
         }
-        if(StringUtils.hasText(updateDto.getNewPassword())) {
+        if (StringUtils.hasText(updateDto.getNewPassword())) {
             user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
         }
     }
 
     @Transactional
-    public void signout(String email){
+    public void signout(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
         userRepository.delete(user);
     }
@@ -127,17 +127,15 @@ public class UserService {
     @Transactional(readOnly = true)
     public ReissueResponseDto reissue(String refreshToken) {
 
-        if(redisTemplate.hasKey(refreshToken)) {
+        if (redisTemplate.hasKey(refreshToken)) {
             throw new BusinessLogicException(ResponseCode.TOKEN_IS_BLACKLIST);
         }
 
-        if(!jwtTokenProvider.validateRefreshToken(refreshToken)) {
-            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN);
-        }
+        jwtTokenProvider.validateRefreshToken(refreshToken);
 
         String email = jwtTokenProvider.getEmailFromRefreshToken(refreshToken);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
 
@@ -147,10 +145,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public void checkPassword(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(ResponseCode.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BusinessLogicException(ResponseCode.INVALID_CREDENTIALS, "비밀번호가 일치하지 않습니다.");
+            throw new BusinessLogicException(ResponseCode.PASSWORD_NOT_MATCHED);
         }
     }
 }

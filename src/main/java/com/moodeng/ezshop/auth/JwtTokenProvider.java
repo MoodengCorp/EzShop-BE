@@ -1,11 +1,14 @@
 package com.moodeng.ezshop.auth;
 
 
+import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.entity.User;
+import com.moodeng.ezshop.exception.BusinessLogicException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +16,7 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -64,7 +68,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private Claims getClaimsFromToken(String token, SecretKey key, boolean allowExpired) {
+    private Claims getClaimsFromToken(String token, SecretKey key) {
         try {
             return Jwts.parser()
                     .verifyWith(key)
@@ -72,19 +76,16 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            if (allowExpired) {
-                return e.getClaims();
-            }
-            throw e;
+            return e.getClaims();
         }
     }
 
     public String getEmailFromAccessToken(String token) {
-        return getClaimsFromToken(token, accessKey, true).getSubject();
+        return getClaimsFromToken(token, accessKey).getSubject();
     }
 
     public String getEmailFromRefreshToken(String token) {
-        return getClaimsFromToken(token, refreshKey, true).getSubject();
+        return getClaimsFromToken(token, refreshKey).getSubject();
     }
 
     public Long getRemainingExpirationTimeFromAccessToken(String token) {
@@ -97,7 +98,7 @@ public class JwtTokenProvider {
 
     private Long calculateRemainingTime(String token, SecretKey key) {
         try {
-            Date expiration = getClaimsFromToken(token, key, true).getExpiration();
+            Date expiration = getClaimsFromToken(token, key).getExpiration();
             Date now = new Date();
 
             long remainingTime = expiration.getTime() - now.getTime();
@@ -108,21 +109,23 @@ public class JwtTokenProvider {
         }
     }
 
-    public boolean validateAccessToken(String token) {
-        try {
-            Jwts.parser().verifyWith(accessKey).build().parseSignedClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+    public void validateAccessToken(String token) {
+        validateToken(token, accessKey);
     }
 
-    public boolean validateRefreshToken(String token) {
+    public void validateRefreshToken(String token) {
+        validateToken(token, refreshKey);
+    }
+
+    private void validateToken(String token, SecretKey secretKey) {
         try {
-            Jwts.parser().verifyWith(refreshKey).build().parseSignedClaims(token);
-            return true;
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+        } catch (ExpiredJwtException e) {
+            log.warn(ResponseCode.TOKEN_EXPIRED.getMessage());
+            throw new BusinessLogicException(ResponseCode.TOKEN_EXPIRED);
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            log.warn(ResponseCode.INVALID_TOKEN.getMessage());
+            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN);
         }
     }
 }

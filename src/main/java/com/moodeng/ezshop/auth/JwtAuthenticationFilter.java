@@ -1,6 +1,7 @@
 package com.moodeng.ezshop.auth;
 
 import com.moodeng.ezshop.dto.response.ResponseCode;
+import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.util.RequestUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,23 +36,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String token = RequestUtils.extractToken(request);
+        try {
+            String token = RequestUtils.extractToken(request);
 
-        if (StringUtils.hasText(token)) {
-            if (redisTemplate.hasKey(token)) {
-                log.warn("SecurityException: {}", ResponseCode.TOKEN_IS_BLACKLIST.getMessage());
-                return;
-            } else if (jwtTokenProvider.validateAccessToken(token)) {
-                String email = jwtTokenProvider.getEmailFromAccessToken(token);
+            if (StringUtils.hasText(token)) {
+                checkBlacklistedToken(token);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                authenticateWithToken(token);
             }
+        } catch (BusinessLogicException e) {
+            request.setAttribute("jwtException", e.getResponseCode());
+            log.warn("SecurityException: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void checkBlacklistedToken(String token) {
+        if (redisTemplate.hasKey(token)) {
+            throw new BusinessLogicException(ResponseCode.TOKEN_IS_BLACKLIST);
+        }
+    }
+    private void authenticateWithToken(String token) {
+        jwtTokenProvider.validateAccessToken(token);
+
+        String email = jwtTokenProvider.getEmailFromAccessToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
