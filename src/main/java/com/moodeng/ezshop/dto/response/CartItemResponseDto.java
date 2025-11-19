@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CartItemResponseDto {
+    private Long cartItemId; // cartItemId 추가함
     private Long itemId;
     private String name;
     private String thumbnailUrl;

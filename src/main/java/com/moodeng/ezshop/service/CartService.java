@@ -35,6 +35,7 @@ public class CartService {
 
         List<CartItemResponseDto> itemDtos = cart.getItems().stream()
                 .map(cartItem -> CartItemResponseDto.builder()
+                        .cartItemId(cartItem.getId()) // cartItemId 추가함
                         .itemId(cartItem.getItem().getId())
                         .name(cartItem.getItem().getName())
                         .thumbnailUrl(cartItem.getItem().getThumbnailUrl())
@@ -44,15 +45,17 @@ public class CartService {
                 )
                 .toList();
 
-        int itemsCount = cart.getItems().size();
-        int total = cart.getItems().stream()
-                .mapToInt(ci -> ci.getItem().getPrice() * ci.getQuantity())
+        // 전체 아이템 항목 갯수
+        int totalCount = cart.getItems().size();
+        
+        // 방바구니 내 상품 합계금액
+        int totalPrice = cart.getItems().stream()
+                .mapToInt(cartItem -> cartItem.getItem().getPrice() * cartItem.getQuantity())
                 .sum();
 
         return CartResponseDto.builder()
-                .address(cart.getUser().getAddress())
-                .itemsCount(itemsCount)
-                .total(total)
+                .totalCount(totalCount)
+                .totalPrice(totalPrice)
                 .items(itemDtos)
                 .build();
     }
