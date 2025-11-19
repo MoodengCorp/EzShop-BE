@@ -19,7 +19,6 @@ public class OrderDetailResponseDto {
     private Integer totalPrice;
     private List<OrderItemResponseDto> items;
 
-    // ✅ 배송 정보
     private DeliveryInfoDto deliveryInfo;
     private String deliveryRequest;
 
@@ -38,19 +37,14 @@ public class OrderDetailResponseDto {
                 .build();
     }
 
-    // ✅ 배송 정보 DTO (내부 클래스)
     @Getter
     @Builder
     public static class DeliveryInfoDto {
-        private String recipientName;
-        private String recipientPhone;
         private String address;
         private String addressDetail;
 
         public static DeliveryInfoDto from(Order order) {
             return DeliveryInfoDto.builder()
-                    .recipientName(order.getRecipientName())
-                    .recipientPhone(order.getRecipientPhone())
                     .address(order.getAddress())
                     .addressDetail(order.getAddressDetail())
                     .build();

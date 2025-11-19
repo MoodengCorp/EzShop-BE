@@ -34,12 +34,6 @@ public class Order extends BaseEntity {
     @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
-    // 수령인 정보
-    @Column(name = "recipient_name", nullable = false, length = 50)
-    private String recipientName;
-
-    @Column(name = "recipient_phone", nullable = false, length = 20)
-    private String recipientPhone;
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
