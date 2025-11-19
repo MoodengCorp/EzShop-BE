@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="items")
+@Table(name="category")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +26,7 @@ public class Category extends BaseEntity{
     @JoinColumn(name = "parent_id")
     private Category parentCategory;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
+    @Builder.Default // NullPointerException 방지
     private List<Category> childrenCategories = new ArrayList<>();
 }
