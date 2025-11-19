@@ -6,9 +6,6 @@ import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name="item")
 @Getter
