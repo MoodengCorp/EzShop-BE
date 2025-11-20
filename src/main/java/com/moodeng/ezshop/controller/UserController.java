@@ -37,7 +37,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse<LoginResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<CommonResponse<LoginResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto,
+                                                                  HttpServletResponse response) {
 
         LoginDetails loginDetails = userService.login(loginRequestDto);
 
@@ -48,9 +49,10 @@ public class UserController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<CommonResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie) {
+    public ResponseEntity<CommonResponse<Void>> logout(HttpServletRequest request,
+                                                       HttpServletResponse response,
+                                                       @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
         String accessToken = RequestUtils.extractToken(request);
-        String refreshToken = CookieUtils.getRefreshToken(refreshTokenCookie);
 
         userService.logout(accessToken, refreshToken);
 
@@ -60,8 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<CommonResponse<ProfileResponseDto>> getProfileInfo(
-            @AuthenticationPrincipal UserDetails userDetails
+    public ResponseEntity<CommonResponse<ProfileResponseDto>> getProfileInfo(@AuthenticationPrincipal UserDetails userDetails
     ) {
         String email = userDetails.getUsername();
 
@@ -71,9 +72,8 @@ public class UserController {
     }
 
     @PatchMapping()
-    public ResponseEntity<CommonResponse<Void>> updateProfileInfo(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody ProfileUpdateRequestDto updateDto
+    public ResponseEntity<CommonResponse<Void>> updateProfileInfo(@AuthenticationPrincipal UserDetails userDetails,
+                                                                  @RequestBody ProfileUpdateRequestDto updateDto
     ) {
         String email = userDetails.getUsername();
 
@@ -83,18 +83,16 @@ public class UserController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<CommonResponse<Void>> signout(
-            @AuthenticationPrincipal UserDetails userDetails,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) Cookie refreshTokenCookie
+    public ResponseEntity<CommonResponse<Void>> signout(@AuthenticationPrincipal UserDetails userDetails,
+                                                        HttpServletRequest request,
+                                                        HttpServletResponse response,
+                                                        @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken
     ) {
         String email = userDetails.getUsername();
 
         userService.signout(email);
 
         String accessToken = RequestUtils.extractToken(request);
-        String refreshToken = CookieUtils.getRefreshToken(refreshTokenCookie);
 
         userService.logout(accessToken, refreshToken);
 
@@ -104,11 +102,10 @@ public class UserController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<CommonResponse<ReissueResponseDto>> reissue(
-            @CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken
+    public ResponseEntity<CommonResponse<ReissueResponseDto>> reissue(@CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken
     ) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new BusinessLogicException(ResponseCode.INVALID_TOKEN, "리프레시 토큰이 없습니다.");
+            throw new BusinessLogicException(ResponseCode.TOKEN_NOT_PROVIDED);
         }
 
         ReissueResponseDto reissueResponseDto = userService.reissue(refreshToken);
@@ -117,9 +114,8 @@ public class UserController {
     }
 
     @PostMapping("/passwordcheck")
-    public ResponseEntity<CommonResponse<Void>> checkPassword(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody PasswordCheckRequestDto passwordDto
+    public ResponseEntity<CommonResponse<Void>> checkPassword(@AuthenticationPrincipal UserDetails userDetails,
+                                                              @RequestBody PasswordCheckRequestDto passwordDto
     ) {
         String email = userDetails.getUsername();
 

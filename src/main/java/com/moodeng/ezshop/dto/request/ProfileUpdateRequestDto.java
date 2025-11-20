@@ -11,4 +11,5 @@ public class ProfileUpdateRequestDto {
     private String newPassword;
     private String phone;
     private String address;
+    private String addressDetail;
 }
