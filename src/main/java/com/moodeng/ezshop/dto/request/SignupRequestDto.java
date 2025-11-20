@@ -13,6 +13,7 @@ public class SignupRequestDto {
     private String name;
     private String phone;
     private String address;
+    private String addressDetail;
     private Role role;
 
     //Helper Method
@@ -23,6 +24,7 @@ public class SignupRequestDto {
                 .name(name)
                 .phone(phone)
                 .address(address)
+                .addressDetail(addressDetail)
                 .role(role)
                 .build();
     }

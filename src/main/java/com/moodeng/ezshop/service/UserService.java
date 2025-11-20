@@ -111,6 +111,11 @@ public class UserService {
         if (StringUtils.hasText(updateDto.getAddress())) {
             user.setAddress(updateDto.getAddress());
         }
+
+        if (StringUtils.hasText(updateDto.getAddressDetail())) {
+            user.setAddressDetail(updateDto.getAddressDetail());
+        }
+
         if (StringUtils.hasText(updateDto.getNewPassword())) {
             user.setPassword(passwordEncoder.encode(updateDto.getNewPassword()));
         }

@@ -3,10 +3,6 @@ package com.moodeng.ezshop.entity;
 import com.moodeng.ezshop.constant.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +32,9 @@ public class User extends BaseEntity {
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
+
+    @Column(name = "address_detail", nullable = false, length = 255)
+    private String addressDetail;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
