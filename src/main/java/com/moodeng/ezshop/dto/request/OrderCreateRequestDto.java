@@ -14,6 +14,11 @@ public class OrderCreateRequestDto {
     @NotEmpty(message = "주문할 장바구니 상품을 선택해주세요.")
     private List<Long> cartItemIds;
 
+    @NotBlank(message = "수령인 이름을 입력해주세요")
+    private String recipientName;
+
+    @NotBlank(message = "수령인 연락처를 입력해주세요")
+    private String recipientPhone;
 
     @NotBlank(message = "배송 주소를 입력해주세요.")
     private String address;

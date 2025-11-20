@@ -40,11 +40,16 @@ public class OrderDetailResponseDto {
     @Getter
     @Builder
     public static class DeliveryInfoDto {
+
+        private String recipientName;
+        private String recipientPhone;
         private String address;
         private String addressDetail;
 
         public static DeliveryInfoDto from(Order order) {
             return DeliveryInfoDto.builder()
+                    .recipientName(order.getRecipientName())
+                    .recipientPhone(order.getRecipientPhone())
                     .address(order.getAddress())
                     .addressDetail(order.getAddressDetail())
                     .build();
