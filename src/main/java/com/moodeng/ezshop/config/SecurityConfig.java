@@ -5,6 +5,7 @@ import com.moodeng.ezshop.exception.SecurityExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -34,8 +35,15 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/user/signup", "/user/login", "/user/logout", "/user/reissue").permitAll()
-                        .requestMatchers("/item/**").permitAll() // 테스트용으로 아이템 관련 요청은 일단 다 열어둠.
                         .requestMatchers("/category").permitAll() // 카테고리 관련 요청은 비즈니스 로직상 다 열어두는게 맞음
+                        .requestMatchers(HttpMethod.GET, "/item/my").hasRole("SELLER") // 내 판매 상품 조회는 판매자만 가능
+                        .requestMatchers(HttpMethod.GET, "/item/**").permitAll()
+                        // 상품 등록/수정/삭제는 판매자만 가능
+                        .requestMatchers(HttpMethod.POST, "/item/**").hasRole("SELLER")
+                        .requestMatchers(HttpMethod.PATCH, "/item/**").hasRole("SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "/item/**").hasRole("SELLER")
+                        .requestMatchers("/orders/seller/**").hasRole("SELLER")
+                        .requestMatchers("/orders/my/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
