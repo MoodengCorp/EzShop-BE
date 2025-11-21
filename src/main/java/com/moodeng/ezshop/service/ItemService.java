@@ -93,7 +93,7 @@ public class ItemService {
 
         // 판매자가 자신의 상품을 검색하는 경우에 ItemStatus를 동적으로 처리
         Page<Item> itemPage = itemRepository.findBySearchConditions(
-                statusList,
+                status,
                 requestDto.getKeyword(),
                 requestDto.getCategoryName(),
                 minPrice,
