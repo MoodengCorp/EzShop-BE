@@ -19,6 +19,10 @@ public class LoginResponseDto {
     private String tokenType = "Bearer";
 
     public static LoginResponseDto of(User user, String accessToken) {
-        return LoginResponseDto.builder().name(user.getName()).role(user.getRole()).accessToken(accessToken).build();
+        return LoginResponseDto.builder()
+                .name(user.getName())
+                .role(user.getRole())
+                .accessToken(accessToken)
+                .build();
     }
 }

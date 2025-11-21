@@ -10,6 +10,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.moodeng.ezshop.util.ResponseUtils.writeErrorResponse;
 
@@ -19,7 +20,9 @@ public class SecurityExceptionHandler implements AuthenticationEntryPoint, Acces
     // 401 Error
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        writeErrorResponse(response, ResponseCode.UNAUTHORIZED);
+        ResponseCode errorCode = (ResponseCode) request.getAttribute("jwtException");
+
+        writeErrorResponse(response, Objects.requireNonNullElse(errorCode, ResponseCode.UNAUTHORIZED));
     }
 
     // 403 Error
