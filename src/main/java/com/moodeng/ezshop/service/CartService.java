@@ -68,26 +68,27 @@ public class CartService {
     public void addToCart(String userEmail, AddToCartRequestDto addToCartRequestDto) {
         Cart cart = getOrCreateCart(userEmail);
 
+        // 이미 상품 있는지 체크
+        boolean isAlreadyInCart = cart.getItems().stream()
+                .anyMatch(cartItem -> cartItem.getItem().getId().equals(addToCartRequestDto.getItemId()));
+
+        // 이미 있다면 예외 발생
+        if (isAlreadyInCart) {
+            throw new BusinessLogicException(ResponseCode.BAD_REQUEST, "이미 장바구니에 담긴 상품입니다.");
+        }
+
+        // 없으면 상품 조회 후 장바구니에 담기
         Item item = itemRepository.findById(addToCartRequestDto.getItemId())
                 .orElseThrow(() ->
                         new BusinessLogicException(ResponseCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
 
-        CartItem cartItem = cart.getItems().stream()
-                .filter(ci -> ci.getItem().getId().equals(item.getId()))
-                .findFirst()
-                .orElse(null);
+        CartItem newCartItem = CartItem.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(addToCartRequestDto.getQuantity())
+                .build();
 
-        if (cartItem == null) {
-            CartItem newCartItem = CartItem.builder()
-                    .cart(cart)
-                    .item(item)
-                    .quantity(addToCartRequestDto.getQuantity())
-                    .build();
-
-            cartItemRepository.save(newCartItem);
-        } else {
-            cartItem.setQuantity(cartItem.getQuantity() + addToCartRequestDto.getQuantity());
-        }
+        cartItemRepository.save(newCartItem);
     }
 
     // 장바구니 수량 변경
