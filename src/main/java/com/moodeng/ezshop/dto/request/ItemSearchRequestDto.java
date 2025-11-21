@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @Getter
 @Setter
 public class ItemSearchRequestDto {
