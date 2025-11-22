@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 public class OrderCreateResponseDto {
 
+    private Long orderId;
     private String orderNumber;
     private String address;
     private String addressDetail;
@@ -15,6 +16,7 @@ public class OrderCreateResponseDto {
 
     public static OrderCreateResponseDto fromEntity(Order order){
         return OrderCreateResponseDto.builder()
+                .orderId(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
