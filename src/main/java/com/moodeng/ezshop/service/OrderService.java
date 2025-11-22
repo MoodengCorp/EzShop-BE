@@ -9,7 +9,6 @@ import com.moodeng.ezshop.dto.response.*;
 import com.moodeng.ezshop.entity.*;
 import com.moodeng.ezshop.exception.BusinessLogicException;
 import com.moodeng.ezshop.repository.CartItemRepository;
-import com.moodeng.ezshop.repository.ItemRepository;
 import com.moodeng.ezshop.repository.OrderRepository;
 import com.moodeng.ezshop.repository.UserRepository;
 import com.moodeng.ezshop.util.OrderNumberGenerator;
