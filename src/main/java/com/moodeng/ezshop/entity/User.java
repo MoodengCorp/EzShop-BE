@@ -33,7 +33,7 @@ public class User extends BaseEntity {
     @Column(name = "address", nullable = false, length = 255)
     private String address;
 
-    @Column(name = "address_detail", length = 255)
+    @Column(name = "address_detail", nullable = false, length = 255)
     private String addressDetail;
 
     @Enumerated(EnumType.STRING)

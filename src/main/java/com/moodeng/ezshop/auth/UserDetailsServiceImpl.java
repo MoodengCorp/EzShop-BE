@@ -1,5 +1,6 @@
 package com.moodeng.ezshop.auth;
 
+import com.moodeng.ezshop.dto.response.ResponseCode;
 import com.moodeng.ezshop.entity.User;
 import com.moodeng.ezshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(ResponseCode.USER_NOT_FOUND.getMessage()));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
