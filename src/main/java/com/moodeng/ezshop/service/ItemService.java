@@ -66,7 +66,7 @@ public class ItemService {
 
         // 일반 구매자가 검색하는 경우이므로 ItemStatus는 ACTIVE로 , sellerEmail은 null로 고정
         Page<Item> itemPage = itemRepository.findBySearchConditions(
-                List.of(ItemStatus.ACTIVE),
+                ItemStatus.ACTIVE,
                 requestDto.getKeyword(),
                 requestDto.getCategoryName(),
                 minPrice,
@@ -87,13 +87,11 @@ public class ItemService {
         Integer maxPrice = requestDto.getMaxPrice();
 
         // statusList가 null 인경우 jpql의 is null이 동작되어 전체 조회가 가능하도록 하기 위한 전처리
-        List<ItemStatus> statusList = (requestDto.getItemStatus() == null || requestDto.getItemStatus().isEmpty())
-                                            ? null
-                                            : requestDto.getItemStatus();
+        ItemStatus status = requestDto.getItemStatus();
 
         // 판매자가 자신의 상품을 검색하는 경우에 ItemStatus를 동적으로 처리
         Page<Item> itemPage = itemRepository.findBySearchConditions(
-                statusList,
+                status,
                 requestDto.getKeyword(),
                 requestDto.getCategoryName(),
                 minPrice,

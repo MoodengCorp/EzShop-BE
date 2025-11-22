@@ -1,6 +1,7 @@
 package com.moodeng.ezshop.dto.response;
 
 import com.moodeng.ezshop.constant.DeliveryType;
+import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.entity.Item;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,7 @@ public class ItemDetailResponseDto {
     private String name;
     private Integer price;
     private Integer stockQuantity;
+    private ItemStatus itemStatus;
     private String thumbnailUrl;
     private String detailImageUrl;
     private String origin;
@@ -27,6 +29,7 @@ public class ItemDetailResponseDto {
                 .name(item.getName())
                 .price(item.getPrice())
                 .stockQuantity(item.getStockQuantity())
+                .itemStatus(item.getStatus())
                 .thumbnailUrl(item.getThumbnailUrl())
                 .detailImageUrl(item.getDetailImageUrl())
                 .origin(item.getOrigin())

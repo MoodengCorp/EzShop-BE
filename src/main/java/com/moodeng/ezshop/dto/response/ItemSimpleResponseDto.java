@@ -1,6 +1,7 @@
 package com.moodeng.ezshop.dto.response;
 
 
+import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.entity.Item;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ public class ItemSimpleResponseDto {
     private String name;
     private Integer price;
     private String thumbnailUrl; // Full URL
+    private ItemStatus itemStatus;
 
     public static ItemSimpleResponseDto fromEntity(Item item) {
         return ItemSimpleResponseDto.builder()
@@ -22,6 +24,7 @@ public class ItemSimpleResponseDto {
                 .name(item.getName())
                 .price(item.getPrice())
                 .thumbnailUrl(item.getThumbnailUrl())
+                .itemStatus(item.getStatus())
                 .build();
     }
 }
