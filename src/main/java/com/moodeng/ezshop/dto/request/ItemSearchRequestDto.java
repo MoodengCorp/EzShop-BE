@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @Getter
 @Setter
 public class ItemSearchRequestDto {
@@ -30,8 +28,7 @@ public class ItemSearchRequestDto {
     private Integer sortedType = 1; //정렬 기준(1 : 신상품순, 2 : 높은 가격순, 3 : 낮은 가격순) (Default: 1)
     
     // seller가 자기상품을 조회하는 경우가 추가되면서 일반유저와 판매자가 볼 수 있는 아이템상태가 다르므로 ItemStatus필드를 추가함
-    // 여러개를 선택할 수 있으므로 list로 받음
-    private List<ItemStatus> itemStatus;
+    private ItemStatus itemStatus;
 
 
     public Pageable toPageable(){

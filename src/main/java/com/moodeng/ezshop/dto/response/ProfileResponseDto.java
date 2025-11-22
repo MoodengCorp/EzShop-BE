@@ -13,6 +13,7 @@ public class ProfileResponseDto {
     private String name;
     private String phone;
     private String address;
+    private String addressDetail;
     private Role role;
 
     public static ProfileResponseDto from(User user) {
@@ -21,6 +22,7 @@ public class ProfileResponseDto {
                 .name(user.getName())
                 .phone(user.getPhone())
                 .address(user.getAddress())
+                .addressDetail(user.getAddressDetail())
                 .role(user.getRole())
                 .build();
     }

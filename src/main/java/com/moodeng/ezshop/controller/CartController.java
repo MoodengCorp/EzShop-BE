@@ -1,6 +1,7 @@
 package com.moodeng.ezshop.controller;
 
 import com.moodeng.ezshop.dto.request.AddToCartRequestDto;
+import com.moodeng.ezshop.dto.request.DeleteCartItemsRequestDto;
 import com.moodeng.ezshop.dto.request.UpdateCartQuantityRequestDto;
 import com.moodeng.ezshop.dto.response.CartResponseDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
@@ -46,6 +47,17 @@ public class CartController {
             ) {
         String userEmail = userDetails.getUsername();
         cartService.updateCartItemQuantity(userEmail, updateCartQuantityRequestDto);
+        return ResponseEntity.ok(CommonResponse.ofSuccess());
+    }
+
+    // 장바구니 내 아이템 삭제
+    @DeleteMapping
+    public ResponseEntity<CommonResponse<Void>> deleteCartItems(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody DeleteCartItemsRequestDto deleteCartItemsRequestDto
+    ) {
+        String userEmail = userDetails.getUsername();
+        cartService.deleteCartItems(userEmail, deleteCartItemsRequestDto);
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 }

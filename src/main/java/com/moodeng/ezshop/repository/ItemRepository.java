@@ -18,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item,Long> {
     // pagination으로 인해 자동으로 정렬까지 됨
     @Query("""
             select i from Item i left join i.category c
-            where (:statusList is null or i.status in :statusList)
+            where (:status is null or i.status = :status)
             and (:keyword is null or i.name like %:keyword%)
             and (:categoryName is null or c.name = :categoryName)
             and (:minPrice is null or i.price >= :minPrice)
@@ -26,7 +26,7 @@ public interface ItemRepository extends JpaRepository<Item,Long> {
             and (:sellerEmail is null or i.user.email = :sellerEmail)
     """)
     Page<Item> findBySearchConditions(
-            @Param("statusList") List<ItemStatus> status,
+            @Param("status") ItemStatus status,
             @Param("keyword") String keyword,
             @Param("categoryName") String categoryName,
             @Param("minPrice") Integer minPrice,
