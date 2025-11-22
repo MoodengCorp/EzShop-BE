@@ -34,29 +34,28 @@ public class Order extends BaseEntity {
     @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
-    // ✅ 수령인 정보
-    @Column(name = "recipient_name", nullable = false, length = 50)
+    @Column(name = "recipient_name", nullable = false)
     private String recipientName;
 
-    @Column(name = "recipient_phone", nullable = false, length = 20)
+    @Column(name = "recipient_phone", nullable = false)
     private String recipientPhone;
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
 
-    // ✅ 상세 주소
+    // 상세 주소
     @Column(name = "address_detail", length = 255)
     private String addressDetail;
 
     @Column(name = "delivery_request", length = 200)
     private String deliveryRequest;
 
-    // ✅ 주문 상품 목록 (양방향 관계)
+    // 주문 상품 목록 (양방향 관계)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    // ✅ 연관관계 편의 메서드
+    // 연관관계 편의 메서드
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
