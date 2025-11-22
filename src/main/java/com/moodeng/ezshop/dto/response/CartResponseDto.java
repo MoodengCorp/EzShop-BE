@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CartResponseDto {
+    private Long cartId;
     private int totalCount;
     private int totalPrice;
     private List<CartItemResponseDto> items;

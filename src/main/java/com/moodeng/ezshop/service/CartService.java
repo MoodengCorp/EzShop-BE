@@ -40,6 +40,7 @@ public class CartService {
                 .map(cartItem -> CartItemResponseDto.builder()
                         .cartItemId(cartItem.getId()) // cartItemId 추가함
                         .itemId(cartItem.getItem().getId())
+                        .deliveryType(cartItem.getItem().getDeliveryType()) // deliveryType 추가
                         .name(cartItem.getItem().getName())
                         .thumbnailUrl(cartItem.getItem().getThumbnailUrl())
                         .price(cartItem.getItem().getPrice())
@@ -57,6 +58,7 @@ public class CartService {
                 .sum();
 
         return CartResponseDto.builder()
+                .cartId(cart.getId())
                 .totalCount(totalCount)
                 .totalPrice(totalPrice)
                 .items(itemDtos)
