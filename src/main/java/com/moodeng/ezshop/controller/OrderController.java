@@ -5,7 +5,6 @@ import com.moodeng.ezshop.dto.request.OrderCreateRequestDto;
 import com.moodeng.ezshop.dto.request.OrderUpdateRequestDto;
 import com.moodeng.ezshop.dto.request.SellerOrderRequestDto;
 import com.moodeng.ezshop.dto.response.*;
-import com.moodeng.ezshop.service.ItemService;
 import com.moodeng.ezshop.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -27,7 +26,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<CommonResponse<OrderCreateResponseDto>> createOrder(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @ModelAttribute OrderCreateRequestDto requestDto
+            @Valid @RequestBody OrderCreateRequestDto requestDto
     ) {
 
         String email = userDetails.getUsername();
@@ -74,7 +73,7 @@ public class OrderController {
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
 
-    @GetMapping("/seller/orders/status-counts")
+    @GetMapping("/seller/status-counts")
     public ResponseEntity<CommonResponse<Map<OrderStatus, Long>>> getSellerOrderStatusCounts(
             @AuthenticationPrincipal UserDetails userDetails
     ){
