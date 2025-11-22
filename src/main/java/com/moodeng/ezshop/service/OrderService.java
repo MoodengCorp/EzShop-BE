@@ -2,6 +2,7 @@ package com.moodeng.ezshop.service;
 
 import com.moodeng.ezshop.constant.ItemStatus;
 import com.moodeng.ezshop.constant.OrderStatus;
+import com.moodeng.ezshop.constant.Period;
 import com.moodeng.ezshop.dto.request.OrderCreateRequestDto;
 import com.moodeng.ezshop.dto.request.SellerOrderRequestDto;
 import com.moodeng.ezshop.dto.response.*;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +90,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<OrderSimpleResponseDto> getUserOrderList(String email, String period) {
-        LocalDateTime startDate = calculateStartDate(period);
+        LocalDateTime startDate = Period.fromString(period).calculateStartDate();
         List<Order> orders = orderRepository.findMyOrders(email, startDate);
 
         return orders.stream()
@@ -100,7 +102,9 @@ public class OrderService {
     public SellerOrderListResponseDto getSellerOrderList(String email, SellerOrderRequestDto requestDto) {
         User seller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessLogicException(ResponseCode.SELLER_NOT_FOUND));
-        Page<Order> orderPage = orderRepository.findSellerOrders(
+
+        // 1. 주문 id만 paginaion 포함하여 조회
+        Page<Long> orderIdsWithPage = orderRepository.findSellerOrderIds(
                 seller.getId(),
                 requestDto.getOrderStatus(),
                 requestDto.getStartDateTime(),
@@ -110,10 +114,18 @@ public class OrderService {
                 requestDto.toPageable()
         );
 
-        List<SellerOrderResponseDto> sellerOrderList = orderPage.getContent().stream()
+        // 판매건수가 없으면 빈 리스트 반환
+        if (orderIdsWithPage.getTotalElements() == 0) {
+            return SellerOrderListResponseDto.of(Collections.emptyList(), orderIdsWithPage);
+        }
+
+        // 2. 조회한 id들을 바탕으로 fetch join으로 한번에 가져옴
+        List<Order> orders = orderRepository.findOrdersFetchByIds(orderIdsWithPage.getContent());
+
+        List<SellerOrderResponseDto> sellerOrderList = orders.stream()
                 .map(order -> SellerOrderResponseDto.from(order, seller.getId()))
                 .toList();
-        return SellerOrderListResponseDto.of(sellerOrderList, orderPage);
+        return SellerOrderListResponseDto.of(sellerOrderList, orderIdsWithPage);
     }
 
     @Transactional(readOnly = true)
@@ -155,21 +167,6 @@ public class OrderService {
         return statusCounts;
     }
 
-
-    // period를 String에서 LocalDateTime으로 바꿔주는 헬퍼메서드
-    private LocalDateTime calculateStartDate(String period) {
-        LocalDateTime now = LocalDateTime.now();
-        if ("3개월".equals(period)){
-            return now.minusMonths(3);
-        } else if ("6개월".equals(period)) {
-            return now.minusMonths(6);
-        } else if ("1년".equals(period)) {
-            return now.minusYears(1);
-        } else{
-            // 조회기간 정보가 없는 경우에 모든 기간 조회 가능
-            return LocalDateTime.of(1900,1,1,0,0);
-        }
-    }
 
     // 유일한 주문번호를 만들어주는 헬퍼메서드
     private String generateUniqueOrderNumber(){
