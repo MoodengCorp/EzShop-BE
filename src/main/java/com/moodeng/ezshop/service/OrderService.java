@@ -36,10 +36,14 @@ public class OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessLogicException(ResponseCode.USER_NOT_FOUND));
 
-        // 장바구니에 담긴 상품들 중 주문할 상품들 일괄 조회 (쿼리 1번만 하기위해서)
-        List<CartItem> cartItems = cartItemRepository.findAllById(requestDto.getCartItemIds());
+        List<Long> cartItemIds = requestDto.getOrderItemInfo().stream()
+                .map(OrderCreateRequestDto.OrderItemInfoRequestDto::getCartItemId)
+                .toList();
 
-        if (cartItems.isEmpty() || cartItems.size() != requestDto.getCartItemIds().size()) {
+        // 장바구니에 담긴 상품들 중 주문할 상품들 일괄 조회 (쿼리 1번만 하기위해서)
+        List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
+
+        if (cartItems.isEmpty() || cartItems.size() != cartItemIds.size()) {
             throw new BusinessLogicException(ResponseCode.INVALID_CART_ITEM);
         }
 
@@ -75,6 +79,11 @@ public class OrderService {
             totalPrice += item.getPrice() * cartItem.getQuantity();
         }
 
+        // 프론트에서 넘어온 총액과 일치하지 않으면 예외 던짐
+        if (totalPrice != requestDto.getTotalPrice()){
+            throw new BusinessLogicException(ResponseCode.WRONG_TOTAL_PRICE);
+        }
+
         // 총액 설정 및 order 저장
         order.setTotalPrice(totalPrice);
 
@@ -102,8 +111,8 @@ public class OrderService {
         User seller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessLogicException(ResponseCode.SELLER_NOT_FOUND));
 
-        // 1. 주문 id만 paginaion 포함하여 조회
-        Page<Long> orderIdsWithPage = orderRepository.findSellerOrderIds(
+        // 1. 주문 id + 생성일자만 paginaion 포함하여 조회 -> 생성일자는 정렬때문에 어쩔수 없이 가져온 더미데이터임
+        Page<Object[]> orderIdsWithPage = orderRepository.findSellerOrderIdsAndCreatedAt(
                 seller.getId(),
                 requestDto.getOrderStatus(),
                 requestDto.getStartDateTime(),
@@ -118,8 +127,12 @@ public class OrderService {
             return SellerOrderListResponseDto.of(Collections.emptyList(), orderIdsWithPage);
         }
 
+        List<Long> orderIds = orderIdsWithPage.getContent().stream()
+                .map(array -> (Long) array[0])
+                .toList();
+
         // 2. 조회한 id들을 바탕으로 fetch join으로 한번에 가져옴
-        List<Order> orders = orderRepository.findOrdersFetchByIds(orderIdsWithPage.getContent());
+        List<Order> orders = orderRepository.findOrdersFetchByIds(orderIds);
 
         List<SellerOrderResponseDto> sellerOrderList = orders.stream()
                 .map(order -> SellerOrderResponseDto.from(order, seller.getId()))

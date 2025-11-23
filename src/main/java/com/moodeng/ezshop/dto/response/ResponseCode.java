@@ -44,7 +44,6 @@ public enum ResponseCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     ITEM_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다."),
     SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 판매자 정보입니다."),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "등록되지 않은 사용자 정보입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 카테고리 정보입니다."),
     INVALID_FILTER_FORMAT(HttpStatus.BAD_REQUEST, "상품 목록조회 필터 형식이 올바르지 않습니다. (예: price:5000-10000)"),
     INVALID_ITEM_STATUS_UPDATE(HttpStatus.BAD_REQUEST, "변경할 수 없는 상품 상태입니다."),
@@ -52,8 +51,10 @@ public enum ResponseCode {
     // Order_Error
     INVALID_CART_ITEM(HttpStatus.BAD_REQUEST, "유효하지 않은 장바구니 상품이 포함되어 있습니다."),
     ITEM_NOT_FOR_SALE(HttpStatus.BAD_REQUEST, "현재 구매할 수 없는 상품입니다."),
-    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품의 재고가 부족합니다.."),
-    ;
+    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품의 재고가 부족합니다."),
+    WRONG_TOTAL_PRICE(HttpStatus.BAD_REQUEST, "상품 가격이 일치하지 않습니다");
+
+
     private final HttpStatus httpStatus;
     private final String message;
 }
