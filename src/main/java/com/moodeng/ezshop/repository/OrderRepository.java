@@ -27,8 +27,9 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findMyOrders(@Param("email") String email, @Param("startDate") LocalDateTime startDate);
 
     // 1. (pagination) 판매자의 주문 Id들만 pagination 포함하여 조회
+    // 💡 수정: SELECT DISTINCT에 o.createdAt 추가하여 MySQL 오류 해결.
     @Query("""
-                    select distinct o.id from Order o
+                    select distinct o.id, o.createdAt from Order o
                     join o.orderItems oi
                     join o.user u
                     where oi.seller.id = :sellerId
@@ -37,8 +38,9 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
                     and (:endDateTime is null or o.createdAt <= :endDateTime)
                     and (:itemName is null or oi.item.name like %:itemName%)
                     and (:buyerName is null or u.name like %:buyerName%)
+                    order by o.createdAt desc
             """)
-    Page<Long> findSellerOrderIds(
+    Page<Object[]> findSellerOrderIdsAndCreatedAt(
             @Param("sellerId") Long sellerId,
             @Param("orderStatus") OrderStatus orderStatus,
             @Param("startDateTime") LocalDateTime startDateTime,

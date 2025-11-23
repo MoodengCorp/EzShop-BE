@@ -17,7 +17,6 @@ public class LocalImageStorageService implements ImageStorageService {
     @Override
     public void deleteFile(String fileUrl) {
         if (fileUrl == null) {
-            return;
         }
     }
 
@@ -27,8 +26,4 @@ public class LocalImageStorageService implements ImageStorageService {
         return "test_url_update";
     }
 
-//    @Override
-//    public Resource loadFileAsResource(String fileUrl) {
-//        return null;
-//    }
 }
