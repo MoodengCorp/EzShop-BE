@@ -1,6 +1,7 @@
 package com.moodeng.ezshop.service;
 
 import com.moodeng.ezshop.constant.ItemStatus;
+import com.moodeng.ezshop.constant.OrderStatus;
 import com.moodeng.ezshop.dto.request.ItemCreateRequestDto;
 import com.moodeng.ezshop.dto.request.ItemSearchRequestDto;
 import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
@@ -20,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +84,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public ItemSearchResponseDto searchMyItems(ItemSearchRequestDto requestDto, String sellerEmail) {
+    public MyItemSearchResponseDto searchMyItems(ItemSearchRequestDto requestDto, String sellerEmail) {
         Pageable pageable = requestDto.toPageable();
 
         Integer minPrice = requestDto.getMinPrice();
@@ -100,8 +104,20 @@ public class ItemService {
                 pageable
         );
 
-        // repository에서 받아온 Page 객체에서 List<Item>을 받아온 후에 List<ItemSimpleResponseDto> 로 변환
-        return buildSearchResponse(itemPage);
+        // 기존에 만들었던 헬퍼메서드를 재사용할 수 없어서 직접 작성했습니다.
+        List<ItemDetailResponseDto> itemDtos = itemPage.getContent()
+                .stream()
+                .map(ItemDetailResponseDto::fromEntity)
+                .toList();
+
+        // Page 객체를 Dto에 담음
+        PaginationDto paginationDto = PaginationDto.fromPage(itemPage);
+
+        // Item 리스트와 pagination 객체를 통해서 응답객체 조립
+        return MyItemSearchResponseDto.builder()
+                .items(itemDtos)
+                .pagination(paginationDto)
+                .build();
     }
 
     @Transactional
@@ -165,6 +181,23 @@ public class ItemService {
                 thumbnailChanged,detailImageChanged);
 
     }
+
+    @Transactional(readOnly = true)
+    public Map<ItemStatus, Long> getSellerItemStatusCounts(String email) {
+        User seller = userRepository.findByEmail(email)
+                .orElseThrow(()->new BusinessLogicException(ResponseCode.SELLER_NOT_FOUND));
+        List<Object[]> results = itemRepository.countSellerItemsByStatus(seller.getId());
+
+        Map<ItemStatus, Long> statusCounts = new EnumMap<>(ItemStatus.class);
+        for (ItemStatus value : ItemStatus.values()) {
+            statusCounts.put(value, 0L);
+        }
+        for (Object[] result : results) {
+            statusCounts.put((ItemStatus) result[0], (Long) result[1]);
+        }
+        return statusCounts;
+    }
+
 
     // page<Item>를 ItemSearchResponseDto로 변환하는 헬퍼 메서드
     private static ItemSearchResponseDto buildSearchResponse(Page<Item> itemPage) {

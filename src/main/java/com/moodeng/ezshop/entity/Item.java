@@ -117,6 +117,8 @@ public class Item extends BaseEntity{
             this.stockQuantity = requestDto.getStockQuantity();
         }
 
+        this.status = (requestDto.getStatus() != null) ? requestDto.getStatus() : this.status;
+
         // 재고가 0인경우 SOLDOUT으로 바꿔줌
         if (this.stockQuantity <= 0 && this.status != ItemStatus.HIDDEN) {
             this.status = ItemStatus.SOLDOUT;

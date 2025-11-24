@@ -34,4 +34,14 @@ public interface ItemRepository extends JpaRepository<Item,Long> {
             @Param("sellerEmail") String sellerEmail,
             Pageable pageable
     );
+
+    @Query(
+            """
+            select i.status, count(distinct i)
+            from Item i
+            where i.user.id = :sellerId
+            group by i.status
+            """
+    )
+    List<Object[]> countSellerItemsByStatus(@Param("sellerId") Long sellerId);
 }
