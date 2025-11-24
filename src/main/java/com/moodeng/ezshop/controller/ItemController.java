@@ -1,11 +1,14 @@
 package com.moodeng.ezshop.controller;
 
+import com.moodeng.ezshop.constant.ItemStatus;
+import com.moodeng.ezshop.constant.OrderStatus;
 import com.moodeng.ezshop.dto.request.ItemCreateRequestDto;
 import com.moodeng.ezshop.dto.request.ItemSearchRequestDto;
 import com.moodeng.ezshop.dto.request.ItemUpdateRequestDto;
 import com.moodeng.ezshop.dto.response.ItemDetailResponseDto;
 import com.moodeng.ezshop.dto.response.ItemSearchResponseDto;
 import com.moodeng.ezshop.dto.response.CommonResponse;
+import com.moodeng.ezshop.dto.response.MyItemSearchResponseDto;
 import com.moodeng.ezshop.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor // 의존성 주입까지 자동으로 해줌
@@ -62,12 +67,12 @@ public class ItemController {
 
     // 내 판매상품 조회(판매자용)
     @GetMapping("/my")
-    public ResponseEntity<CommonResponse<ItemSearchResponseDto>> getMyItems(
+    public ResponseEntity<CommonResponse<MyItemSearchResponseDto>> getMyItems(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @ModelAttribute ItemSearchRequestDto requestDto
     ){
         String email = userDetails.getUsername();
-        ItemSearchResponseDto responseDto = itemService.searchMyItems(requestDto, email);
+        MyItemSearchResponseDto responseDto = itemService.searchMyItems(requestDto, email);
         return ResponseEntity.ok(CommonResponse.ofSuccess(responseDto));
     }
 
@@ -85,8 +90,12 @@ public class ItemController {
         itemService.updateItem(itemId, requestDto, thumbnailFile, detailImageFile, email);
         return ResponseEntity.ok(CommonResponse.ofSuccess());
     }
-
-
-
-
+    @GetMapping("/seller/status-count")
+    public ResponseEntity<CommonResponse<Map<ItemStatus, Long>>> getSellerItemStatusCounts(
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        String email = userDetails.getUsername();
+        Map<ItemStatus, Long> response = itemService.getSellerItemStatusCounts(email);
+        return ResponseEntity.ok(CommonResponse.ofSuccess(response));
+    }
 }
